@@ -4,22 +4,22 @@ from AdditionalMethods import *
 
 
 class Tankopedia:
-    def __init__(self, application_id, tank_id):
+    def __init__(self, application_id):
         self.__application_id = application_id
-        self.__tank_id = tank_id
+        # self.__tank_id = tank_id
 
     def __del__(self):
         del self.__application_id
-        del self.__tank_id
+        # del self.__tank_id
 
     def __technique(self):
         url = 'https://api.worldoftanks.ru/wot/encyclopedia/vehicles/?application_id=' + str(self.__application_id)
         response = json.loads(req.urlopen(url).read().decode('utf-8'))
         return response
 
-    def __technicals_characterictic(self):
+    def __technicals_characterictic(self, tank_id):
         url = 'https://api.worldoftanks.ru/wot/encyclopedia/vehicleprofile/?application_id=' + \
-              str(self.__application_id) + '&tank_id=' + str(self.__tank_id)
+              str(self.__application_id) + '&tank_id=' + str(tank_id)
         response = json.loads(req.urlopen(url).read().decode('utf-8'))
         return response
 
@@ -54,9 +54,9 @@ class Tankopedia:
         response = json.loads(req.urlopen(url).read().decode('utf-8'))
         return response
 
-    def __equipment_assembling(self):
+    def __equipment_assembling(self, tank_id):
         url = 'https://api.worldoftanks.ru/wot/encyclopedia/vehicleprofiles/?application_id=' \
-              + str(self.__application_id) + '&tank_id=5953' + str(self.__tank_id)
+              + str(self.__application_id) + '&tank_id=5953' + str(tank_id)
         response = json.loads(req.urlopen(url).read().decode('utf-8'))
         return response
 
@@ -245,13 +245,15 @@ if __name__ == '__main__':
     tank_id = 5953
 
     account = Account(account_id, application_id)
-    tanks = Tankopedia(application_id, tank_id)
+    tanks = Tankopedia(application_id)
     parser = Parser(account, tanks)
+    print(parser.tanks_list(tank_id).images())
+
     # print(request_players_nickname(application_id, 'terminator_74'))
     # print(account.request_clans(parser.personal_data().clan_id()))
     # print(parser.player_achievment().achievements())
-    f = open('tanks_list.txt')
-    list_out = json.loads(f.read())
-    tanks_list = [x for x in list_out['data'].keys()]
-    for i in parser.player_technique().tank_id_list():
-        print(list_out['data'][str(i)]['name'])
+    # f = open('tanks_list.txt')
+    # list_out = json.loads(f.read())
+    # tanks_list = [x for x in list_out['data'].keys()]
+    # for i in parser.player_technique().tank_id_list():
+    #     print(list_out['data'][str(i)]['name'])
