@@ -1,7 +1,8 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication, QDesktopWidget, QGridLayout, QLabel, \
     QLineEdit, QWidget, QAction, QFrame, QPushButton,  QTableWidget, QTableWidgetItem, QMessageBox, QComboBox
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
+import urllib.request
 import wargaming_class_s as wg
 
 
@@ -30,7 +31,10 @@ class TankWindow(QWidget):
         tankopedia = wg.Tankopedia(application_id)
         parser = wg.Parser(account, tankopedia)
         for i in parser.player_technique().tank_id_list():
-            self.players_tech.addItem(QIcon(parser.tanks_list(str(i)).images()['contour_icon']), ' ' + parser.tanks_list(str(i)).name())
+            self.players_tech.addItem(\
+                QIcon(QPixmap().loadFromData\
+                          (urllib.request.urlopen(parser.tanks_list(i).images()['contour_icon']).read())),\
+                ' ' + parser.tanks_list(str(i)).name())
 
 
 class FuckingGrid(QFrame):
