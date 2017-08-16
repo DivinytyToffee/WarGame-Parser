@@ -247,8 +247,11 @@ if __name__ == '__main__':
     account = Account(account_id, application_id)
     tanks = Tankopedia(application_id)
     parser = Parser(account, tanks)
-    print(parser.tanks_list(tank_id).images())
-
+    print(parser.personal_data())
+    # print(parser.tanks_list(tank_id).images())
+    # sd = open('tanks_list.txt', 'r')
+    # teank_list = json.loads(sd.read())
+    # print(teank_list['data'].keys())
     # print(request_players_nickname(application_id, 'terminator_74'))
     # print(account.request_clans(parser.personal_data().clan_id()))
     # print(parser.player_achievment().achievements())

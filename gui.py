@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication, QDesktopWidget, QGridLayout, QLabel, \
     QLineEdit, QWidget, QAction, QFrame, QPushButton,  QTableWidget, QTableWidgetItem, QMessageBox, QComboBox
 from PyQt5.QtGui import QIcon, QPixmap
-import urllib.request
+import requests
 import wargaming_class_s as wg
 
 
@@ -15,14 +15,17 @@ class TankWindow(QWidget):
         self.initUI()
 
     def initUI(self):
-
+        self.wqer = QLineEdit()
+        self.wqer.setGeometry(10, 5, 180, 30)
         self.players_tech = QComboBox(self)
-        self.players_tech.setGeometry(10, 5, 180, 30)
-        self.players_tech.addItem('')
+        self.players_tech.setGeometry(10, 50, 180, 30)
+        self.players_tech.addItem('TANK')
         self.filling_player_tech()
+        self.players_tech.activated[str].connect(self.onActivated)
+
 
         self.setGeometry(300, 300, 800, 550)
-        self.setWindowTitle('Font dialog')
+        self.setWindowTitle('Tech')
         self.show()
 
     def filling_player_tech(self):
@@ -31,11 +34,18 @@ class TankWindow(QWidget):
         tankopedia = wg.Tankopedia(application_id)
         parser = wg.Parser(account, tankopedia)
         for i in parser.player_technique().tank_id_list():
-            self.players_tech.addItem(\
-                QIcon(QPixmap().loadFromData\
-                          (urllib.request.urlopen(parser.tanks_list(i).images()['contour_icon']).read())),\
-                ' ' + parser.tanks_list(str(i)).name())
+            rs = requests.get(parser.tanks_list(str(i)).images()['contour_icon'])
 
+            pixmap = QPixmap()
+            pixmap.loadFromData(rs.content)
+
+            icon = QIcon(pixmap)
+            name = ' ' + parser.tanks_list(str(i)).name()
+            self.players_tech.addItem(icon, name)
+
+    def onActivated(self, text):
+        self.line.setText(text)
+        self.lbl.adjustSize()
 
 class FuckingGrid(QFrame):
     def __init__(self):
