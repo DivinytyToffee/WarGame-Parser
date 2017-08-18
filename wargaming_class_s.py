@@ -4,13 +4,13 @@ from AdditionalMethods import *
 
 
 class Tankopedia:
+
     def __init__(self, application_id):
         self.__application_id = application_id
         # self.__tank_id = tank_id
 
     def __del__(self):
         del self.__application_id
-        # del self.__tank_id
 
     def __technique(self):
         url = 'https://api.worldoftanks.ru/wot/encyclopedia/vehicles/?application_id=' + str(self.__application_id)
@@ -65,14 +65,19 @@ class Tankopedia:
         response = json.loads(req.urlopen(url).read().decode('utf-8'))
         return response
 
+    def update_tech(self, tank_id):
+        with open('tanks_characteristics.txt', 'w', encoding='utf-8') as f:
+            f.write(json.dumps(self.__technicals_characterictic(tank_id)))
+        print('All characteristics of the configuration of technology added to the tanks_characteristics.txt')
+
+        with open('equipment_assembling.txt', 'w', encoding='utf-8') as f:
+            f.write(json.dumps(self.__equipment_assembling(tank_id)))
+        print('All characteristics equipment assembling are added to the equipment_assembling.txt')
+
     def loads_in_files(self):
         with open('tanks_list.txt', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__technique()))
         print('All availeble techique recored in tanks_list.txt')
-
-        with open('tanks_characteristics.txt', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__technicals_characterictic()))
-        print('All characteristics of the configuration of technology added to the tanks_characteristics.txt')
 
         with open('tanks_achievments.txt', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__achievment()))
@@ -86,9 +91,9 @@ class Tankopedia:
             f.write(json.dumps(self.__game_maps()))
         print('Added deskription game maps to the game_maps.txt')
 
-        with open('game_maps.txt', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__game_maps()))
-        print('Added deskription game maps to the game_maps.txt')
+        # with open('game_maps.txt', 'w', encoding='utf-8') as f:
+        #     f.write(json.dumps(self.__game_maps()))
+        # print('Added deskription game maps to the game_maps.txt')
 
         with open('equipment.txt', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__equipment()))
@@ -101,10 +106,6 @@ class Tankopedia:
         with open('personal_reserve.txt', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__personal_reserve()))
         print('All info about personal reserve are added to the personal_reserve.txt')
-
-        with open('equipment_assembling.txt', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__equipment_assembling()))
-        print('All characteristics equipment assembling are added to the equipment_assembling.txt')
 
         with open('modules.txt', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__modules()))
@@ -122,12 +123,6 @@ class Parser:
         del self.__account
         del self.__tankopedia
 
-
-    # def nicknames(self):
-    #     nick_players = [player['nickname'] for player in self.__account.request_players_nickname()['data']]
-    #     id_players = [player['account_id'] for player in self.__account.request_players_nickname()['data']]
-    #     dict_players = dict([(id_players[x], nick_players[x]) for x in range(len(nick_players))])
-    #     return dict_players
 
     def __personal_data_internal(self):
         return self.__account.request_personal_data()
@@ -247,16 +242,6 @@ if __name__ == '__main__':
     account = Account(account_id, application_id)
     tanks = Tankopedia(application_id)
     parser = Parser(account, tanks)
-    print(parser.personal_data())
-    # print(parser.tanks_list(tank_id).images())
-    # sd = open('tanks_list.txt', 'r')
-    # teank_list = json.loads(sd.read())
-    # print(teank_list['data'].keys())
-    # print(request_players_nickname(application_id, 'terminator_74'))
-    # print(account.request_clans(parser.personal_data().clan_id()))
-    # print(parser.player_achievment().achievements())
-    # f = open('tanks_list.txt')
-    # list_out = json.loads(f.read())
-    # tanks_list = [x for x in list_out['data'].keys()]
-    # for i in parser.player_technique().tank_id_list():
-    #     print(list_out['data'][str(i)]['name'])
+    Tankopedia(application_id).update_tech(tank_id)
+    k = parser.tanks_characteristics(tank_id).turret()
+    print(k)

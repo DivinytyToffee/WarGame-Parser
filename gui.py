@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication, QDesktopWi
     QLineEdit, QWidget, QAction, QFrame, QPushButton,  QTableWidget, QTableWidgetItem, QMessageBox, QComboBox
 from PyQt5.QtGui import QIcon, QPixmap
 import requests
+import json
 import wargaming_class_s as wg
 
 
@@ -10,29 +11,111 @@ application_id = 'ff260aebae4d7ba6d1164685003616f4'
 
 
 class TankWindow(QWidget):
+
     def __init__(self):
         super().__init__()
         self.initUI()
 
     def initUI(self):
-        self.wqer = QLineEdit()
-        self.wqer.setGeometry(10, 5, 180, 30)
+
         self.players_tech = QComboBox(self)
-        self.players_tech.setGeometry(10, 50, 180, 30)
-        self.players_tech.addItem('TANK')
+        self.players_tech.setGeometry(9, 5, 180, 25)
+        self.players_tech.addItem('')
         self.filling_player_tech()
         self.players_tech.activated[str].connect(self.onActivated)
+        # deict_tech = self.dict_tech_player()
 
+        self.label_max_weight = QLabel(self)
+        self.label_max_weight.move(10, 35)
+        self.label_max_weight.setText('Real weight(kg): ')
 
-        self.setGeometry(300, 300, 800, 550)
+        self.label_hull_weight = QLabel(self)
+        self.label_hull_weight.move(10, 65)
+        self.label_hull_weight.setText('Hull weight(kg): ')
+
+        self.label_turret = QLabel(self)
+        self.label_turret.move(10, 95)
+        self.label_turret.setText('Turret characteristics: ')
+
+        self.label_suspension = QLabel(self)
+        self.label_suspension.move(10, 125)
+        self.label_suspension.setText('Characteristics of running gear: ')
+
+        self.label_is_default = QLabel(self)
+        self.label_is_default.move(10, 155)
+        self.label_is_default.setText('Basic equipment: ')
+
+        self.label_ammo = QLabel(self)
+        self.label_ammo.move(10, 185)
+        self.label_ammo.setText('Characteristics of the projectile shells: ')
+
+        self.label_gun = QLabel(self)
+        self.label_gun.move(10, 215)
+        self.label_gun.setText('Characteristics of the gun: ')
+
+        self.label_weight = QLabel(self)
+        self.label_weight.move(10, 245)
+        self.label_weight.setText('Weight(kg): ')
+
+        self.label_modules = QLabel(self)
+        self.label_modules.move(10, 275)
+        self.label_modules.setText('Installed modules: ')
+
+        self.label_max_ammo = QLabel(self)
+        self.label_max_ammo.move(10, 305)
+        self.label_max_ammo.setText('Ammunition kit: ')
+
+        self.label_profile_id = QLabel(self)
+        self.label_profile_id.move(10, 335)
+        self.label_profile_id.setText('Equipment ID: ')
+
+        self.label_radio = QLabel(self)
+        self.label_radio.move(10, 365)
+        self.label_radio.setText('Characteristics of the radio station: ')
+
+        self.label_siege = QLabel(self)
+        self.label_siege.move(10, 395)
+        self.label_siege.setText('Characteristics of machines in siege mode: ')
+
+        self.label_speed_forward = QLabel(self)
+        self.label_speed_forward.move(10, 425)
+        self.label_speed_forward.setText('Max speed(km/h): ')
+
+        self.label_speed_backward = QLabel(self)
+        self.label_speed_backward.move(10, 455)
+        self.label_speed_backward.setText('Max backward speed(km/h): ')
+
+        self.label_hull_hp = QLabel(self)
+        self.label_hull_hp.move(10, 485)
+        self.label_hull_hp.setText('Body strength: ')
+
+        self.label_armor = QLabel(self)
+        self.label_armor.move(10, 515)
+        self.label_armor.setText('Armour: ')
+
+        self.label_hp = QLabel(self)
+        self.label_hp.move(10, 545)
+        self.label_hp.setText('Strength: ')
+
+        self.label_engine = QLabel(self)
+        self.label_engine.move(10, 575)
+        self.label_engine.setText('Engine characteristics: ')
+
+        self.setGeometry(300, 300, 1380, 600)
         self.setWindowTitle('Tech')
         self.show()
 
-    def filling_player_tech(self):
+    @staticmethod
+    def dict_tech_player():
         account_id = FuckingGrid().account_id
         account = wg.Account(account_id, application_id)
         tankopedia = wg.Tankopedia(application_id)
         parser = wg.Parser(account, tankopedia)
+        dict_tech_player = {parser.tanks_list(str(x)).name(): x for x in parser.player_technique().tank_id_list()}
+        return dict_tech_player
+
+    def filling_player_tech(self):
+        parser = self.__parser()
         for i in parser.player_technique().tank_id_list():
             rs = requests.get(parser.tanks_list(str(i)).images()['contour_icon'])
 
@@ -44,8 +127,49 @@ class TankWindow(QWidget):
             self.players_tech.addItem(icon, name)
 
     def onActivated(self, text):
-        self.line.setText(text)
-        self.lbl.adjustSize()
+        parser = self.__parser()
+        wg.Tankopedia(application_id).update_tech(self.dict_tech_player()[text[1:]])
+#######################################################
+        self.label_ammo.setText('Characteristics of the projectile shells: ')
+        for i in parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).ammo():
+            self.label_ammo.setText(self.label_ammo.text() + " ".join(i['type'].split('_')) + ': dam: ' + \
+                                    json.dumps(i['damage']) + ', pen: ' + json.dumps(i['penetration']) + '  ')
+        self.label_ammo.adjustSize()
+#######################################################
+        self.label_max_weight.setText('Real weight(kg): ')
+        self.label_max_weight.setText(self.label_max_weight.text() + \
+                                      str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).max_weight())\
+                                      + 'kg')
+        self.label_max_weight.adjustSize()
+#######################################################
+        self.label_hull_weight.setText('Hull weight(kg): ')
+        self.label_hull_weight.setText(self.label_hull_weight.text() + \
+                                       str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).max_weight())\
+                                       + 'kg')
+        self.label_hull_weight.adjustSize()
+#######################################################
+        self.label_turret.setText('Turret characteristics: ')
+        self.label_turret.setText(self.label_turret.text() + \
+                                  parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['name'] \
+                                  + ' weight: '\
+                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['weight'])\
+                                  + ' Traverse angle, left (deg): '\
+                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['traverse_left_arc'])\
+                                  + ' Traverse angle, right (deg): '\
+                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['traverse_right_arc'])\
+                                  + ' hp: '\
+                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['hp'])\
+                                  +' Traverse speed(deg/s): '\
+                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['traverse_speed']))
+        self.label_turret.adjustSize()
+
+    def __parser(self):
+        account_id = FuckingGrid().account_id
+        account = wg.Account(account_id, application_id)
+        tankopedia = wg.Tankopedia(application_id)
+        parser = wg.Parser(account, tankopedia)
+        return parser
+
 
 class FuckingGrid(QFrame):
     def __init__(self):
@@ -85,6 +209,7 @@ class FuckingGrid(QFrame):
         self.achi_count_line.setDisabled(True)
 
         self.enter_nickname = QLineEdit()
+        self.enter_nickname.setText('RipHanter___________EVIL')
 
 
         self.btn_nickname_text = QPushButton('Search nicknames')
@@ -159,15 +284,19 @@ class Example(QMainWindow):
         self.initUI()
 
     def initUI(self):
-
+        self.tankopedia = wg.Tankopedia(application_id)
         exitAction = QAction(QIcon('exit.png'), 'Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(self.close)
+        update_data_action = QAction('Update tanks date', self)
+        update_data_action.triggered.connect(self.center)
         self.statusBar()
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(exitAction)
+        fileMenu.addAction(update_data_action)
+
 
         self.fgrid = FuckingGrid()
         self.setCentralWidget(self.fgrid)
