@@ -237,11 +237,21 @@ if __name__ == '__main__':
     nickname = 'RipHanter'
     account_id = 11751234
     application_id = 'ff260aebae4d7ba6d1164685003616f4'
-    tank_id = 5953
+    tank_id = 5121
 
     account = Account(account_id, application_id)
     tanks = Tankopedia(application_id)
     parser = Parser(account, tanks)
     Tankopedia(application_id).update_tech(tank_id)
-    k = parser.tanks_characteristics(tank_id).turret()
+    # tanks.loads_in_files()
+    # tanks.update_tech(tank_id)
+    d = None
+    if d:
+        print(d)
+    k = parser.tanks_characteristics(tank_id).armor()
+    file = open('modules.txt')
+    modules_dict = json.loads(file.read())
+    # for i in k:
+    #     print(modules_dict['data'][str(k.get(i))]['name'])
+
     print(k)

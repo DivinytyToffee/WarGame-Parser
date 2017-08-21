@@ -23,11 +23,11 @@ class TankWindow(QWidget):
         self.players_tech.addItem('')
         self.filling_player_tech()
         self.players_tech.activated[str].connect(self.onActivated)
-        # deict_tech = self.dict_tech_player()
 
         self.label_max_weight = QLabel(self)
         self.label_max_weight.move(10, 35)
         self.label_max_weight.setText('Real weight(kg): ')
+        
 
         self.label_hull_weight = QLabel(self)
         self.label_hull_weight.move(10, 65)
@@ -129,6 +129,7 @@ class TankWindow(QWidget):
     def onActivated(self, text):
         parser = self.__parser()
         wg.Tankopedia(application_id).update_tech(self.dict_tech_player()[text[1:]])
+        print(self.dict_tech_player()[text[1:]])
 #######################################################
         self.label_ammo.setText('Characteristics of the projectile shells: ')
         for i in parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).ammo():
@@ -151,7 +152,7 @@ class TankWindow(QWidget):
         self.label_turret.setText('Turret characteristics: ')
         self.label_turret.setText(self.label_turret.text() + \
                                   parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['name'] \
-                                  + ' weight: '\
+                                  + ' Weight(kg): '\
                                   + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['weight'])\
                                   + ' Traverse angle, left (deg): '\
                                   + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['traverse_left_arc'])\
@@ -160,9 +161,147 @@ class TankWindow(QWidget):
                                   + ' hp: '\
                                   + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['hp'])\
                                   +' Traverse speed(deg/s): '\
-                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['traverse_speed']))
+                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['traverse_speed'])
+                                  + ' View range (m): '\
+                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).turret()['view_range']))
         self.label_turret.adjustSize()
-
+#######################################################
+        self.label_suspension.setText('Characteristics of running gear: ')
+        self.label_suspension.setText(self.label_suspension.text() + \
+                                      parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).suspension()['name']\
+                                      + ' Weight(kg): '\
+                                      + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).suspension()['weight'])\
+                                      + ' Traverse speed (deg/s): '\
+                                      + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).suspension()['traverse_speed'])\
+                                      + ' Load limit (kg): '\
+                                      + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).suspension()['load_limit']))
+        self.label_suspension.adjustSize()
+#######################################################
+        self.label_is_default.setText('Basic equipment: ')
+        self.label_is_default.setText(self.label_is_default.text() + \
+                              str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).is_default()))
+        self.label_is_default.adjustSize()
+#######################################################
+        self.label_gun.setText('Characteristics of the gun: ')
+        self.label_gun.setText(self.label_gun.text() + \
+                               parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).gun()['name']\
+                               + ' Caliber (mm): '
+                               + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).gun()['caliber'])\
+                               + ' Dispersion at 100 m (m): '\
+                               + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).gun()['dispersion'])\
+                               + ' Rate of fire (rounds/min) '\
+                               + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).gun()['fire_rate'])\
+                               + ' Aiming time (s): '\
+                               + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).gun()['aim_time'])\
+                               +' Reload time (s): '\
+                               + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).gun()['reload_time'])\
+                               + ' Traverse speed (deg/s): '\
+                               + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).gun()['traverse_speed']))
+        self.label_gun.adjustSize()
+#######################################################
+        self.label_weight.setText('Weight(kg): ')
+        self.label_weight.setText(self.label_weight.text() + \
+                                  str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).weight()))
+        self.label_weight.adjustSize()
+#######################################################
+        k = parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).modules()
+        file = open('modules.txt')
+        modules_dict = json.loads(file.read())
+        self.label_modules.setText('Installed modules: ')
+        for i in k:
+            if k.get(i) != None:
+                self.label_modules.setText(self.label_modules.text() + modules_dict['data'][str(k.get(i))]['name']\
+                                           + ', ')
+            else:
+                continue
+        self.label_modules.adjustSize()
+#######################################################
+        self.label_max_ammo.setText('Ammunition kit: ')
+        self.label_max_ammo.setText(self.label_max_ammo.text() + \
+                                    str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).max_ammo()))
+        self.label_max_ammo.adjustSize()
+#######################################################
+        self.label_profile_id.setText('Equipment ID: ')
+        self.label_profile_id.setText(self.label_profile_id.text() + \
+                                      parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).profile_id())
+        self.label_profile_id.adjustSize()
+#######################################################
+        self.label_radio.setText('Characteristics of the radio station: ')
+        self.label_radio.setText(self.label_radio.text() + \
+                                 parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).radio()['name']\
+                                 + ' Signal range: '\
+                                 + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).radio()['signal_range'])\
+                                 + ' Weight: '\
+                                 + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).radio()['weight']))
+        self.label_radio.adjustSize()
+#######################################################
+        self.label_siege.setText('Characteristics of machines in siege mode: ')
+        self.label_siege.setText(self.label_siege.text() + \
+                                 str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).siege()))
+        self.label_siege.adjustSize()
+#######################################################
+        self.label_speed_forward.setText('Max speed(km/h): ')
+        self.label_speed_forward.setText(self.label_speed_forward.text() + \
+                                         str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).speed_forward()))
+        self.label_speed_forward.adjustSize()
+#######################################################
+        self.label_speed_backward.setText('Max backward speed(km/h): ')
+        self.label_speed_backward.setText(self.label_speed_backward.text() + \
+                                          str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).speed_backward()))
+        self.label_speed_backward.adjustSize()
+#######################################################
+        self.label_hull_hp.setText('Body strength: ')
+        self.label_hull_hp.setText(self.label_hull_hp.text() + \
+                                   str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).speed_backward()))
+        self.label_hull_hp.adjustSize()
+#######################################################
+        self.label_armor.setText('Armour: ')
+        if parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).armor()['turret'] != None:
+            self.label_armor.setText(self.label_armor.text() + \
+                                     'Turret: '\
+                                     + ' front - '\
+                                     + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).armor()['turret']['front'])\
+                                     + ' sides - '\
+                                     + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).armor()['turret']['sides'])\
+                                     + ' rear - '\
+                                     + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).armor()['turret']['rear'])\
+                                     + ' Hull: '\
+                                     + ' front - '\
+                                     + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).armor()['hull']['front'])\
+                                     + ' sides - '\
+                                     + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).armor()['hull']['sides'])\
+                                     + ' rear - ' \
+                                     + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).armor()['hull']['rear']))
+        else:
+            self.label_armor.setText(self.label_armor.text() + \
+                                     'Turret: None' \
+                                     + ' Hull: ' \
+                                     + ' front - ' \
+                                     + str(
+                parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).armor()['hull']['front']) \
+                                     + ' sides - ' \
+                                     + str(
+                parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).armor()['hull']['sides']) \
+                                     + ' rear - ' \
+                                     + str(
+                parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).armor()['hull']['rear']))
+        self.label_armor.adjustSize()
+#####################################################
+        self.label_hp.setText('Strength: ')
+        self.label_hp.setText(self.label_hp.text() +\
+                              str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).hp()))
+        self.label_hp.adjustSize()
+#####################################################
+        self.label_engine.setText('Engine characteristics: ')
+        self.label_engine.setText(self.label_engine.text() + \
+                                  str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).engine()['name'])\
+                                  + ' Engine Power (hp): '\
+                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).engine()['power'])\
+                                  + ' Chance of engine fire: '\
+                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).engine()['fire_chance'])\
+                                  + ' Weight(kg): '\
+                                  + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).engine()['weight']))
+        self.label_engine.adjustSize()
     def __parser(self):
         account_id = FuckingGrid().account_id
         account = wg.Account(account_id, application_id)
@@ -277,6 +416,7 @@ class FuckingGrid(QFrame):
 
     def set_account_id(self, parser):
         return parser.personal_data().account_id()
+
 
 class Example(QMainWindow):
     def __init__(self):
