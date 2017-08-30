@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication, QDesktopWidget, QGridLayout, QLabel, \
-    QLineEdit, QWidget, QAction, QFrame, QPushButton,  QTableWidget, QTableWidgetItem, QMessageBox, QComboBox
+    QLineEdit, QWidget, QAction, QFrame, QPushButton,  QTableWidget, QTableWidgetItem, QMessageBox, QComboBox, QHBoxLayout
 from PyQt5.QtGui import QIcon, QPixmap
 import requests
 import json
@@ -8,6 +8,20 @@ import wargaming_class_s as wg
 
 
 application_id = 'ff260aebae4d7ba6d1164685003616f4'
+
+
+class AchievementsWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+
+
+
+        self.setGeometry(300, 300, 600, 300)
+        self.setWindowTitle('Achievements')
+        self.show()
 
 
 class TankWindow(QWidget):
@@ -24,10 +38,14 @@ class TankWindow(QWidget):
         self.filling_player_tech()
         self.players_tech.activated[str].connect(self.onActivated)
 
+        # self.tank_picture_frame = QFrame(self)
+        # self.tank_picture_frame.setGeometry(200, 5, 180, 180)
+        # self.tank_picture_frame.set
+
         self.label_max_weight = QLabel(self)
         self.label_max_weight.move(10, 35)
         self.label_max_weight.setText('Real weight(kg): ')
-        
+
 
         self.label_hull_weight = QLabel(self)
         self.label_hull_weight.move(10, 65)
@@ -302,6 +320,7 @@ class TankWindow(QWidget):
                                   + ' Weight(kg): '\
                                   + str(parser.tanks_characteristics(self.dict_tech_player()[text[1:]]).engine()['weight']))
         self.label_engine.adjustSize()
+
     def __parser(self):
         account_id = FuckingGrid().account_id
         account = wg.Account(account_id, application_id)
@@ -357,11 +376,14 @@ class FuckingGrid(QFrame):
         self.btn_tanks_window = QPushButton('Technique')
         self.btn_tanks_window.clicked.connect(self.tanks_window)
 
+        self.btn_achivment_window = QPushButton('Achievements')
+        self.btn_achivment_window.clicked.connect(self.achievements_window)
+
         self.table_widget.doubleClicked.connect(self.table_double_click)
 
         grid = QGridLayout()
         grid.setSpacing(10)
-        grid.addWidget(self.table_widget, 1, 0, 7, 1)
+        grid.addWidget(self.table_widget, 1, 0, 8, 1)
         grid.addWidget(nickname_label, 1, 1)
         grid.addWidget(self.nickname_line, 1, 2)
         grid.addWidget(clan_name_label, 2, 1)
@@ -374,9 +396,10 @@ class FuckingGrid(QFrame):
         grid.addWidget(self.tech_count_line, 5, 2)
         grid.addWidget(achi_count_label, 6, 1)
         grid.addWidget(self.achi_count_line, 6, 2)
-        grid.addWidget(self.enter_nickname, 8, 0)
-        grid.addWidget(self.btn_nickname_text, 8, 1)
-        grid.addWidget(self.btn_tanks_window, 8, 2)
+        grid.addWidget(self.enter_nickname, 9, 0)
+        grid.addWidget(self.btn_nickname_text, 9, 1)
+        grid.addWidget(self.btn_tanks_window, 9, 2)
+        # grid.addWidget(self.btn_achivment_window, 8, 2)
 
         self.setLayout(grid)
         self.setMinimumSize(100, 200)
@@ -413,6 +436,10 @@ class FuckingGrid(QFrame):
     def tanks_window(self):
         tanks_win = TankWindow()
         tanks_win.exec_()
+
+    def achievements_window(self):
+        achv_win = AchievementsWindow()
+        achv_win.exec_()
 
     def set_account_id(self, parser):
         return parser.personal_data().account_id()
