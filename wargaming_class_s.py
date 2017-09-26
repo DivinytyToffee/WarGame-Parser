@@ -113,35 +113,35 @@ class Tankopedia:
 
     def loads_in_files(self):
         with open('data/tanks_list.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__technique()))
+            f.write(json.dumps(self.__technique(), f, sort_keys=True, indent=4, separators=(',', ': ')))
         print('All available technique recorded in tanks_list.json')
 
         with open('data/tanks_achievements.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__achievment()))
+            f.write(json.dumps(self.__achievment(), f, sort_keys=True, indent=4, separators=(',', ': ')))
         print('All achievements added to the tanks_achievement.json')
 
         with open('data/tankopedia_info.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__information_about_tankopedia()))
+            f.write(json.dumps(self.__information_about_tankopedia(), f, sort_keys=True, indent=4, separators=(',', ': ')))
         print('Information about tankopedia added to the tankopedia_info.json')
 
         with open('data/game_maps.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__game_maps()))
+            f.write(json.dumps(self.__game_maps(), f, sort_keys=True, indent=4, separators=(',', ': ')))
         print('Added description game maps to the game_maps.json')
 
         with open('data/equipment.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__equipment()))
+            f.write(json.dumps(self.__equipment(), f, sort_keys=True, indent=4, separators=(',', ': ')))
         print('All available equipment and equipment are added to the equipment.json')
 
         with open('data/personal_combat_mission.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__personal_combat_missions()))
+            f.write(json.dumps(self.__personal_combat_missions(), f, sort_keys=True, indent=4, separators=(',', ': ')))
         print('All personal combat mission are added to the personal_combat_mission.json')
 
         with open('data/personal_reserve.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__personal_reserve()))
+            f.write(json.dumps(self.__personal_reserve(), f, sort_keys=True, indent=4, separators=(',', ': ')))
         print('All info about personal reserve are added to the personal_reserve.json')
 
         with open('data/modules.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__modules()))
+            f.write(json.dumps(self.__modules(), f, sort_keys=True, indent=4, separators=(',', ': ')))
         print('A list of available modules that can be installed on the equipment, such as engines, towers, etc\
         are added to the modules.json')
 
