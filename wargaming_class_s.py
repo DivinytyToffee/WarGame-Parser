@@ -3,11 +3,51 @@ import json
 from AdditionalMethods import *
 
 
+class Account:
+
+    def __init__(self, account_id, application_id):
+        self.__account_id = account_id
+        self.__application_id = application_id
+
+    def __del__(self):
+        del self.__account_id
+        del self.__application_id
+
+    def request_clans(self, clan_id):
+        url = 'https://api.worldoftanks.ru/wgn/clans/info/?application_id=' + str(self.__application_id) + \
+              '&clan_id=' + str(clan_id)
+        response = json.loads(req.urlopen(url).read().decode('utf-8'))
+        return response
+
+    def request_personal_data(self):
+        url = 'https://api.worldoftanks.ru/wot/account/info/\
+        ?application_id=' + str(self.__application_id) + '&account_id=' + str(self.__account_id)
+        response = json.loads(req.urlopen(url).read().decode('utf-8'))
+        return response
+
+    def request_player_s_technique(self):
+        url = 'https://api.worldoftanks.ru/wot/account/tanks/\
+        ?application_id=' + str(self.__application_id) + '&account_id=' + str(self.__account_id)
+        response = json.loads(req.urlopen(url).read().decode('utf-8'))
+        return response
+
+    def request_player_s_achievements(self):
+        url = 'https://api.worldoftanks.ru/wot/account/achievements/\
+        ?application_id=' + str(self.__application_id) + '&account_id=' + str(self.__account_id)
+        response = json.loads(req.urlopen(url).read().decode('utf-8'))
+        return response
+
+    def request_data_clan(self, clan_id):
+        url = 'https://api.worldoftanks.ru/wot/globalmap/claninfo/?application_id=' + str(self.__application_id) + \
+              '&clan_id=' + str(clan_id)
+        response = json.loads(req.urlopen(url).read().decode('utf-8'))
+        return response
+
+
 class Tankopedia:
 
     def __init__(self, application_id):
         self.__application_id = application_id
-        # self.__tank_id = tank_id
 
     def __del__(self):
         del self.__application_id
@@ -65,52 +105,45 @@ class Tankopedia:
         response = json.loads(req.urlopen(url).read().decode('utf-8'))
         return response
 
-    def update_tech(self, tank_id):
-        with open('tanks_characteristics.txt', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__technicals_characterictic(tank_id)))
-        print('All characteristics of the configuration of technology added to the tanks_characteristics.txt')
+    def tech_characterictic(self, tank_id):
+        return self.__technicals_characterictic(tank_id)
 
-        with open('equipment_assembling.txt', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(self.__equipment_assembling(tank_id)))
-        print('All characteristics equipment assembling are added to the equipment_assembling.txt')
+    def instal_modules(self, tank_id):
+        return self.__equipment_assembling(tank_id)
 
     def loads_in_files(self):
-        with open('tanks_list.txt', 'w', encoding='utf-8') as f:
+        with open('data/tanks_list.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__technique()))
-        print('All availeble techique recored in tanks_list.txt')
+        print('All available technique recorded in tanks_list.json')
 
-        with open('tanks_achievments.txt', 'w', encoding='utf-8') as f:
+        with open('data/tanks_achievements.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__achievment()))
-        print('All achievments added to the tanks_achievment.txt')
+        print('All achievements added to the tanks_achievement.json')
 
-        with open('tankopedia_info.txt', 'w', encoding='utf-8') as f:
+        with open('data/tankopedia_info.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__information_about_tankopedia()))
-        print('Information about tankopedia added to the tankopedia_info.txt')
+        print('Information about tankopedia added to the tankopedia_info.json')
 
-        with open('game_maps.txt', 'w', encoding='utf-8') as f:
+        with open('data/game_maps.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__game_maps()))
-        print('Added deskription game maps to the game_maps.txt')
+        print('Added description game maps to the game_maps.json')
 
-        # with open('game_maps.txt', 'w', encoding='utf-8') as f:
-        #     f.write(json.dumps(self.__game_maps()))
-        # print('Added deskription game maps to the game_maps.txt')
-
-        with open('equipment.txt', 'w', encoding='utf-8') as f:
+        with open('data/equipment.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__equipment()))
-        print('All available equipment and equipment are added to the equipment.txt')
+        print('All available equipment and equipment are added to the equipment.json')
 
-        with open('personal_combat_mission.txt', 'w', encoding='utf-8') as f:
+        with open('data/personal_combat_mission.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__personal_combat_missions()))
-        print('All personal combat mission are added to the personal_combat_mission.txt')
+        print('All personal combat mission are added to the personal_combat_mission.json')
 
-        with open('personal_reserve.txt', 'w', encoding='utf-8') as f:
+        with open('data/personal_reserve.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__personal_reserve()))
-        print('All info about personal reserve are added to the personal_reserve.txt')
+        print('All info about personal reserve are added to the personal_reserve.json')
 
-        with open('modules.txt', 'w', encoding='utf-8') as f:
+        with open('data/modules.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.__modules()))
         print('A list of available modules that can be installed on the equipment, such as engines, towers, etc\
-        are added to the modules.txt')
+        are added to the modules.json')
 
 
 class Parser:
@@ -122,7 +155,6 @@ class Parser:
     def __del__(self):
         del self.__account
         del self.__tankopedia
-
 
     def __personal_data_internal(self):
         return self.__account.request_personal_data()
@@ -147,7 +179,7 @@ class Parser:
 
     @staticmethod
     def __tanks_list_internal():
-        f = open('tanks_list.txt')
+        f = open('data/tanks_list.json', 'r').read()
         list_out = json.loads(f.read())
         return list_out
 
@@ -157,7 +189,7 @@ class Parser:
 
     @staticmethod
     def __tank_characteristics_internal():
-        f = open('tanks_characteristics.txt')
+        f = open('data/tanks_characteristics.json', 'r').read()
         list_out = json.loads(f.read())
         return list_out
 
@@ -170,60 +202,13 @@ class Parser:
 
     @staticmethod
     def __tanks_achievments_internal():
-        f = open('tanks_achievments.txt')
+        f = open('data/tanks_achievments.json', 'r').read()
         list_out = json.loads(f.read())
         return list_out
 
     def tanks_achievments(self, account_id):
         achievments = AchievmentAdditionalMethods(self.__personal_achievment_internal(), account_id)
         return achievments
-
-
-class Account:
-
-    def __init__(self, account_id, application_id):
-        self.__account_id = account_id
-        self.__application_id = application_id
-
-    def __del__(self):
-        del self.__account_id
-        del self.__application_id
-
-    # def get_account_id(self):
-    #     return str(self.__account_id)
-    #
-    # def get_nickname(self):
-    #     return str(self.__nickname)
-
-    def request_clans(self, clan_id):
-        url = 'https://api.worldoftanks.ru/wgn/clans/info/?application_id=' + str(self.__application_id) + \
-              '&clan_id=' + str(clan_id)
-        response = json.loads(req.urlopen(url).read().decode('utf-8'))
-        return response
-
-    def request_personal_data(self):
-        url = 'https://api.worldoftanks.ru/wot/account/info/\
-        ?application_id=' + str(self.__application_id) + '&account_id=' + str(self.__account_id)
-        response = json.loads(req.urlopen(url).read().decode('utf-8'))
-        return response
-
-    def request_player_s_technique(self):
-        url = 'https://api.worldoftanks.ru/wot/account/tanks/\
-        ?application_id=' + str(self.__application_id) + '&account_id=' + str(self.__account_id)
-        response = json.loads(req.urlopen(url).read().decode('utf-8'))
-        return response
-
-    def request_player_s_achievements(self):
-        url = 'https://api.worldoftanks.ru/wot/account/achievements/\
-        ?application_id=' + str(self.__application_id) + '&account_id=' + str(self.__account_id)
-        response = json.loads(req.urlopen(url).read().decode('utf-8'))
-        return response
-
-    def request_data_clan(self, clan_id):
-        url = 'https://api.worldoftanks.ru/wot/globalmap/claninfo/?application_id=' + str(self.__application_id) + \
-              '&clan_id=' + str(clan_id)
-        response = json.loads(req.urlopen(url).read().decode('utf-8'))
-        return response
 
 
 def request_players_nickname(application_id, nickname):
