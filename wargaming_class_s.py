@@ -4,7 +4,6 @@ from AdditionalMethods import *
 
 
 class Account:
-
     def __init__(self, account_id, application_id):
         self.__account_id = account_id
         self.__application_id = application_id
@@ -45,7 +44,6 @@ class Account:
 
 
 class Tankopedia:
-
     def __init__(self, application_id):
         self.__application_id = application_id
 
@@ -105,7 +103,16 @@ class Tankopedia:
         response = json.loads(req.urlopen(url).read().decode('utf-8'))
         return response
 
-    def tech_characterictic(self, tank_id):
+    def update_tech(self, tank_id):
+        with open('tanks_characteristics.txt', 'w', encoding='utf-8') as f:
+            f.write(json.dumps(self.__technicals_characterictic(tank_id), f, sort_keys=True, indent=4, separators=(',', ': ')))
+        print('All characteristics of the configuration of technology added to the tanks_characteristics.txt')
+
+        with open('equipment_assembling.txt', 'w', encoding='utf-8') as f:
+            f.write(json.dumps(self.__equipment_assembling(tank_id), f, sort_keys=True, indent=4, separators=(',', ': ')))
+        print('All characteristics equipment assembling are added to the equipment_assembling.txt')
+
+    def tech_characteristic(self, tank_id):
         return self.__technicals_characterictic(tank_id)
 
     def instal_modules(self, tank_id):
@@ -147,7 +154,6 @@ class Tankopedia:
 
 
 class Parser:
-
     def __init__(self, account, tankopedia):
         self.__account = account
         self.__tankopedia = tankopedia
@@ -180,7 +186,7 @@ class Parser:
     @staticmethod
     def __tanks_list_internal():
         f = open('data/tanks_list.json', 'r').read()
-        list_out = json.loads(f.read())
+        list_out = json.loads(f)
         return list_out
 
     def tanks_list(self, tank_id):
@@ -190,11 +196,12 @@ class Parser:
     @staticmethod
     def __tank_characteristics_internal():
         f = open('data/tanks_characteristics.json', 'r').read()
-        list_out = json.loads(f.read())
+        list_out = json.loads(f)
         return list_out
 
     def tanks_characteristics(self, tank_id):
-        characteristics = CharacteristicsAdditionalMethods(self.__tank_characteristics_internal(), tank_id)
+        characteristics = CharacteristicsAdditionalMethods(Tankopedia(\
+            'ff260aebae4d7ba6d1164685003616f4').tech_characteristic(tank_id), tank_id)
         return characteristics
 
     def clans_data(self, clan_id):
@@ -203,7 +210,7 @@ class Parser:
     @staticmethod
     def __tanks_achievments_internal():
         f = open('data/tanks_achievments.json', 'r').read()
-        list_out = json.loads(f.read())
+        list_out = json.loads(f)
         return list_out
 
     def tanks_achievments(self, account_id):
