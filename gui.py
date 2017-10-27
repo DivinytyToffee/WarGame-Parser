@@ -1,11 +1,12 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication, QDesktopWidget, QGridLayout, QLabel, \
-    QLineEdit, QWidget, QAction, QFrame, QPushButton,  QTableWidget, QTableWidgetItem, QMessageBox, QComboBox, QHBoxLayout
-from PyQt5.QtGui import QIcon, QPixmap
 import requests
+from PyQt5.QtGui import QPixmap, QIcon
 import json
-import wargaming_class_s as wg
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget, QAction, QMessageBox, \
+QWidget, QFrame, QTableWidget, QLabel, QLineEdit, QPushButton, QGridLayout, QTableWidgetItem, QMessageBox, QWidget, \
+    QLabel, QComboBox
 
+import wargaming_class_s as wg
 
 application_id = 'ff260aebae4d7ba6d1164685003616f4'
 
@@ -15,13 +16,126 @@ class AchievementsWindow(QWidget):
         super().__init__()
         self.initUI()
 
-    def initUI(self):       
-
-
-
+    def initUI(self):
         self.setGeometry(300, 300, 600, 300)
         self.setWindowTitle('Achievements')
         self.show()
+
+
+class FuckingGrid(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    account_id = None
+
+    def initUI(self):
+
+        self.table_widget = QTableWidget()
+        self.table_widget.setColumnCount(2)
+        self.table_widget.setHorizontalHeaderLabels(['Nickname', 'Account ID'])
+
+        nickname_label = QLabel('Nickname')
+        self.nickname_line = QLineEdit()
+        self.nickname_line.setDisabled(True)
+
+        clan_name_label = QLabel('Clan Name')
+        self.clan_name_line = QLineEdit()
+        self.clan_name_line.setDisabled(True)
+
+        create_data_label = QLabel("Data create's")
+        self.create_data_line = QLineEdit()
+        self.create_data_line.setDisabled(True)
+
+        rating_label = QLabel('Rating')
+        self.rating_line = QLineEdit()
+        self.rating_line.setDisabled(True)
+
+        tech_count_label = QLabel('Quantity of equipment')
+        self.tech_count_line = QLineEdit()
+        self.tech_count_line.setDisabled(True)
+
+        achi_count_label = QLabel('Number of achievements')
+        self.achi_count_line = QLineEdit()
+        self.achi_count_line.setDisabled(True)
+
+        self.enter_nickname = QLineEdit()
+        self.enter_nickname.setText('RipHanter___________EVIL')
+
+
+        self.btn_nickname_text = QPushButton('Search nicknames')
+        self.btn_nickname_text.clicked.connect(self.print_nickname)
+
+        self.btn_tanks_window = QPushButton('Technique')
+        self.btn_tanks_window.clicked.connect(self.tanks_window)
+
+        self.btn_achivment_window = QPushButton('Achievements')
+        self.btn_achivment_window.clicked.connect(self.achievements_window)
+
+        self.table_widget.doubleClicked.connect(self.table_double_click)
+
+        grid = QGridLayout()
+        grid.setSpacing(10)
+        grid.addWidget(self.table_widget, 1, 0, 8, 1)
+        grid.addWidget(nickname_label, 1, 1)
+        grid.addWidget(self.nickname_line, 1, 2)
+        grid.addWidget(clan_name_label, 2, 1)
+        grid.addWidget(self.clan_name_line, 2, 2)
+        grid.addWidget(create_data_label, 3, 1)
+        grid.addWidget(self.create_data_line, 3, 2)
+        grid.addWidget(rating_label, 4, 1)
+        grid.addWidget(self.rating_line, 4, 2)
+        grid.addWidget(tech_count_label, 5, 1)
+        grid.addWidget(self.tech_count_line, 5, 2)
+        grid.addWidget(achi_count_label, 6, 1)
+        grid.addWidget(self.achi_count_line, 6, 2)
+        grid.addWidget(self.enter_nickname, 9, 0)
+        grid.addWidget(self.btn_nickname_text, 9, 1)
+        grid.addWidget(self.btn_tanks_window, 9, 2)
+        # grid.addWidget(self.btn_achivment_window, 8, 2)
+
+        self.setLayout(grid)
+        self.setMinimumSize(100, 200)
+
+    def print_nickname(self):
+        if self.enter_nickname.text() and len(self.enter_nickname.text()) >= 3:
+            plyers_list = wg.request_players_nickname(application_id, self.enter_nickname.text())
+            self.table_widget.setRowCount(len((plyers_list)))
+            for x in range(len(plyers_list)):
+                self.table_widget.setItem(x, 0, QTableWidgetItem(plyers_list[x]['nickname']))
+                self.table_widget.setItem(x, 1, QTableWidgetItem(str(plyers_list[x]['account_id'])))
+        else:
+            QMessageBox.question(self, 'Error', "Enter nickname or they part(min 3 signs)", QMessageBox.Ok,
+                                 QMessageBox.Ok)
+
+    def table_double_click(self, me):
+        selected_account_id = QTableWidgetItem.text(self.table_widget.item(me.row(), me.column()))
+        tank_id = '0'
+        account = wg.Account(selected_account_id, application_id)
+        tankopedia = wg.Tankopedia(application_id)
+        parser = wg.Parser(account, tankopedia)
+        FuckingGrid.account_id = self.set_account_id(parser)
+        self.nickname_line.setText(parser.personal_data().nickname())
+        if parser.personal_data().clan_id():
+            self.clan_name_line.setText(account.request_clans(parser.personal_data().clan_id())\
+                                            ['data'][str(parser.personal_data().clan_id())]['name'])
+        else:
+            self.clan_name_line.setText('In the clan does not consist')
+        self.create_data_line.setText(str(parser.personal_data().created_at()))
+        self.rating_line.setText(str(parser.personal_data().global_rating()))
+        self.tech_count_line.setText(str(len(parser.player_technique().tank_id_list())))
+        self.achi_count_line.setText(str(len(parser.player_achievment().achievements())))
+
+    def tanks_window(self):
+        tanks_win = TankWindow()
+        tanks_win.exec_()
+
+    def achievements_window(self):
+        achv_win = AchievementsWindow()
+        achv_win.exec_()
+
+    def set_account_id(self, parser):
+        return parser.personal_data().account_id()
 
 
 class TankWindow(QWidget):
@@ -149,7 +263,7 @@ class TankWindow(QWidget):
 
     def comon_method_oA(self, tank_id):
         tank = wg.Tankopedia(application_id)
-        tank_charac = tank.tech_characterictic(tank_id)['data'][tank_id]
+        tank_charac = tank.tech_characteristic(tank_id)['data'][tank_id]
         return tank_charac
 
 
@@ -231,7 +345,7 @@ class TankWindow(QWidget):
         self.label_weight.adjustSize()
         #######################################################
         k = self.parser().tanks_characteristics(self.dict_tech_player()[text[1:]]).modules()
-        file = open('modules.txt')
+        file = open('data/modules.json')
         modules_dict = json.loads(file.read())
         self.label_modules.setText('Installed modules: ')
         for i in k:
@@ -330,122 +444,6 @@ class TankWindow(QWidget):
         self.label_engine.adjustSize()
 
 
-class FuckingGrid(QFrame):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-
-    account_id = None
-
-    def initUI(self):
-
-        self.table_widget = QTableWidget()
-        self.table_widget.setColumnCount(2)
-        self.table_widget.setHorizontalHeaderLabels(['Nickname', 'Account ID'])
-
-        nickname_label = QLabel('Nickname')
-        self.nickname_line = QLineEdit()
-        self.nickname_line.setDisabled(True)
-
-        clan_name_label = QLabel('Clan Name')
-        self.clan_name_line = QLineEdit()
-        self.clan_name_line.setDisabled(True)
-
-        create_data_label = QLabel("Data create's")
-        self.create_data_line = QLineEdit()
-        self.create_data_line.setDisabled(True)
-
-        rating_label = QLabel('Rating')
-        self.rating_line = QLineEdit()
-        self.rating_line.setDisabled(True)
-
-        tech_count_label = QLabel('Quantity of equipment')
-        self.tech_count_line = QLineEdit()
-        self.tech_count_line.setDisabled(True)
-
-        achi_count_label = QLabel('Number of achievements')
-        self.achi_count_line = QLineEdit()
-        self.achi_count_line.setDisabled(True)
-
-        self.enter_nickname = QLineEdit()
-        self.enter_nickname.setText('RipHanter___________EVIL')
-
-
-        self.btn_nickname_text = QPushButton('Search nicknames')
-        self.btn_nickname_text.clicked.connect(self.print_nickname)
-
-        self.btn_tanks_window = QPushButton('Technique')
-        self.btn_tanks_window.clicked.connect(self.tanks_window)
-
-        self.btn_achivment_window = QPushButton('Achievements')
-        self.btn_achivment_window.clicked.connect(self.achievements_window)
-
-        self.table_widget.doubleClicked.connect(self.table_double_click)
-
-        grid = QGridLayout()
-        grid.setSpacing(10)
-        grid.addWidget(self.table_widget, 1, 0, 8, 1)
-        grid.addWidget(nickname_label, 1, 1)
-        grid.addWidget(self.nickname_line, 1, 2)
-        grid.addWidget(clan_name_label, 2, 1)
-        grid.addWidget(self.clan_name_line, 2, 2)
-        grid.addWidget(create_data_label, 3, 1)
-        grid.addWidget(self.create_data_line, 3, 2)
-        grid.addWidget(rating_label, 4, 1)
-        grid.addWidget(self.rating_line, 4, 2)
-        grid.addWidget(tech_count_label, 5, 1)
-        grid.addWidget(self.tech_count_line, 5, 2)
-        grid.addWidget(achi_count_label, 6, 1)
-        grid.addWidget(self.achi_count_line, 6, 2)
-        grid.addWidget(self.enter_nickname, 9, 0)
-        grid.addWidget(self.btn_nickname_text, 9, 1)
-        grid.addWidget(self.btn_tanks_window, 9, 2)
-        # grid.addWidget(self.btn_achivment_window, 8, 2)
-
-        self.setLayout(grid)
-        self.setMinimumSize(100, 200)
-
-    def print_nickname(self):
-        if self.enter_nickname.text() and len(self.enter_nickname.text()) >= 3:
-            plyers_list = wg.request_players_nickname(application_id, self.enter_nickname.text())
-            self.table_widget.setRowCount(len((plyers_list)))
-            for x in range(len(plyers_list)):
-                self.table_widget.setItem(x, 0, QTableWidgetItem(plyers_list[x]['nickname']))
-                self.table_widget.setItem(x, 1, QTableWidgetItem(str(plyers_list[x]['account_id'])))
-        else:
-            QMessageBox.question(self, 'Error', "Enter nickname or they part(min 3 signs)", QMessageBox.Ok,
-                                 QMessageBox.Ok)
-
-    def table_double_click(self, me):
-        selected_account_id = QTableWidgetItem.text(self.table_widget.item(me.row(), me.column()))
-        tank_id = '0'
-        account = wg.Account(selected_account_id, application_id)
-        tankopedia = wg.Tankopedia(application_id)
-        parser = wg.Parser(account, tankopedia)
-        FuckingGrid.account_id = self.set_account_id(parser)
-        self.nickname_line.setText(parser.personal_data().nickname())
-        if parser.personal_data().clan_id():
-            self.clan_name_line.setText(account.request_clans(parser.personal_data().clan_id())\
-                                            ['data'][str(parser.personal_data().clan_id())]['name'])
-        else:
-            self.clan_name_line.setText('In the clan does not consist')
-        self.create_data_line.setText(str(parser.personal_data().created_at()))
-        self.rating_line.setText(str(parser.personal_data().global_rating()))
-        self.tech_count_line.setText(str(len(parser.player_technique().tank_id_list())))
-        self.achi_count_line.setText(str(len(parser.player_achievment().achievements())))
-
-    def tanks_window(self):
-        tanks_win = TankWindow()
-        tanks_win.exec_()
-
-    def achievements_window(self):
-        achv_win = AchievementsWindow()
-        achv_win.exec_()
-
-    def set_account_id(self, parser):
-        return parser.personal_data().account_id()
-
-
 class Example(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -477,7 +475,7 @@ class Example(QMainWindow):
 
     def update_files(self):
         self.statusBar().showMessage('Start update')
-        # wg.Tankopedia(application_id).loads_in_files()
+        wg.Tankopedia(application_id).loads_in_files()
         QMessageBox.about(self, 'Message', "All files update's")
         self.statusBar().showMessage('')
 
@@ -490,4 +488,5 @@ class Example(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Example()
+
     sys.exit(app.exec_())
