@@ -1,11 +1,11 @@
 import sys
 import requests
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QPainter, QColor, QFont, QPalette
 import json
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget, QAction, QMessageBox, \
 QWidget, QFrame, QTableWidget, QLabel, QLineEdit, QPushButton, QGridLayout, QTableWidgetItem, QMessageBox, QWidget, \
-    QLabel, QComboBox
-
+    QLabel, QComboBox, QScrollArea, QVBoxLayout, QStyle, QHBoxLayout, QFormLayout
+from PyQt5.QtCore import Qt
 import wargaming_class_s as wg
 
 application_id = 'ff260aebae4d7ba6d1164685003616f4'
@@ -22,7 +22,7 @@ class AchievementsWindow(QWidget):
         self.show()
 
 
-class FuckingGrid(QFrame):
+class MainWindowGrid(QFrame):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -92,7 +92,7 @@ class FuckingGrid(QFrame):
         grid.addWidget(self.enter_nickname, 9, 0)
         grid.addWidget(self.btn_nickname_text, 9, 1)
         grid.addWidget(self.btn_tanks_window, 9, 2)
-        # grid.addWidget(self.btn_achivment_window, 8, 2)
+        grid.addWidget(self.btn_achivment_window, 8, 2)
 
         self.setLayout(grid)
         self.setMinimumSize(100, 200)
@@ -114,7 +114,7 @@ class FuckingGrid(QFrame):
         account = wg.Account(selected_account_id, application_id)
         tankopedia = wg.Tankopedia(application_id)
         parser = wg.Parser(account, tankopedia)
-        FuckingGrid.account_id = self.set_account_id(parser)
+        MainWindowGrid.account_id = self.set_account_id(parser)
         self.nickname_line.setText(parser.personal_data().nickname())
         if parser.personal_data().clan_id():
             self.clan_name_line.setText(account.request_clans(parser.personal_data().clan_id())\
@@ -145,101 +145,157 @@ class TankWindow(QWidget):
         self.initUI()
 
     def initUI(self):
+        scroll_area = QScrollArea()
+        scroll_area_widget_layout = QGridLayout()
+        scroll_area_widget_layout_hb = QHBoxLayout()
+        scroll_area_widget_layout_hb.addStretch(1)
+        self.style_string = """background-color: #F6E2C5;
+                            color: #000000;
+                            font-family: Times;
+                            border-radius: 10px;
+                            padding: 10px;"""
 
         self.players_tech = QComboBox(self)
         self.players_tech.setGeometry(9, 5, 180, 25)
         self.players_tech.addItem('')
         self.filling_player_tech()
         self.players_tech.activated[str].connect(self.onActivated)
-
-        # self.tank_picture_frame = QFrame(self)
-        # self.tank_picture_frame.setGeometry(200, 5, 180, 180)
-        # self.tank_picture_frame.set
+        scroll_area_widget_layout.addWidget(self.players_tech, 0, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.players_tech)
 
         self.label_max_weight = QLabel(self)
-        self.label_max_weight.move(10, 35)
         self.label_max_weight.setText('Real weight(kg): ')
-
+        self.label_max_weight.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_max_weight, 1, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_max_weight)
 
         self.label_hull_weight = QLabel(self)
-        self.label_hull_weight.move(10, 65)
         self.label_hull_weight.setText('Hull weight(kg): ')
+        self.label_hull_weight.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_hull_weight, 2, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_hull_weight)
 
         self.label_turret = QLabel(self)
-        self.label_turret.move(10, 95)
         self.label_turret.setText('Turret characteristics: ')
+        self.label_turret.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_turret, 3, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_turret)
 
         self.label_suspension = QLabel(self)
-        self.label_suspension.move(10, 125)
         self.label_suspension.setText('Characteristics of running gear: ')
+        self.label_suspension.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_suspension, 4, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_suspension)
 
         self.label_is_default = QLabel(self)
-        self.label_is_default.move(10, 155)
         self.label_is_default.setText('Basic equipment: ')
+        self.label_is_default.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_is_default, 5, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_is_default)
 
         self.label_ammo = QLabel(self)
-        self.label_ammo.move(10, 185)
-        self.label_ammo.setText('Characteristics of the projectile shells: ')
+        self.label_ammo.setText('Characteristics of the projectile shells:')
+        self.label_ammo.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_ammo, 6, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_ammo)
 
         self.label_gun = QLabel(self)
-        self.label_gun.move(10, 215)
         self.label_gun.setText('Characteristics of the gun: ')
+        self.label_gun.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_gun, 9, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_gun)
 
         self.label_weight = QLabel(self)
-        self.label_weight.move(10, 245)
         self.label_weight.setText('Weight(kg): ')
+        self.label_weight.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_weight, 10, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_weight)
+
 
         self.label_modules = QLabel(self)
-        self.label_modules.move(10, 275)
         self.label_modules.setText('Installed modules: ')
+        self.label_modules.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_modules, 11, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_modules)
 
         self.label_max_ammo = QLabel(self)
-        self.label_max_ammo.move(10, 305)
         self.label_max_ammo.setText('Ammunition kit: ')
+        self.label_max_ammo.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_max_ammo, 12, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_max_ammo)
 
         self.label_profile_id = QLabel(self)
-        self.label_profile_id.move(10, 335)
         self.label_profile_id.setText('Equipment ID: ')
+        self.label_profile_id.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_profile_id, 13, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_profile_id)
 
         self.label_radio = QLabel(self)
-        self.label_radio.move(10, 365)
         self.label_radio.setText('Characteristics of the radio station: ')
+        self.label_radio.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_radio, 14, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_radio)
 
         self.label_siege = QLabel(self)
-        self.label_siege.move(10, 395)
         self.label_siege.setText('Characteristics of machines in siege mode: ')
+        self.label_siege.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_siege, 15, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_siege)
 
         self.label_speed_forward = QLabel(self)
-        self.label_speed_forward.move(10, 425)
         self.label_speed_forward.setText('Max speed(km/h): ')
+        self.label_speed_forward.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_speed_forward, 16, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_speed_forward)
 
         self.label_speed_backward = QLabel(self)
-        self.label_speed_backward.move(10, 455)
         self.label_speed_backward.setText('Max backward speed(km/h): ')
+        self.label_speed_backward.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_speed_backward, 17, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_speed_backward)
 
         self.label_hull_hp = QLabel(self)
-        self.label_hull_hp.move(10, 485)
         self.label_hull_hp.setText('Body strength: ')
+        self.label_hull_hp.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_hull_hp, 18, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_hull_hp)
 
         self.label_armor = QLabel(self)
-        self.label_armor.move(10, 515)
         self.label_armor.setText('Armour: ')
+        self.label_armor.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_armor, 19, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_armor)
 
         self.label_hp = QLabel(self)
-        self.label_hp.move(10, 545)
         self.label_hp.setText('Strength: ')
+        self.label_hp.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_hp, 20, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_hp)
 
         self.label_engine = QLabel(self)
-        self.label_engine.move(10, 575)
         self.label_engine.setText('Engine characteristics: ')
+        self.label_engine.setStyleSheet(self.style_string)
+        scroll_area_widget_layout.addWidget(self.label_engine, 21, 0)
+        #scroll_area_widget_layout_hb.addWidget(self.label_engine)
 
-        self.setGeometry(300, 300, 1380, 600)
+        scroll_area_widget = QWidget()
+        scroll_area_widget.setLayout(scroll_area_widget_layout)
+        scroll_area.setWidget(scroll_area_widget)
+
+        layout = QVBoxLayout()
+        # layout.addStretch(500)
+        layout.addWidget(scroll_area)
+
+        self.setLayout(layout)
+
+        self.setGeometry(300, 300, 600, 450)
         self.setWindowTitle('Tech')
         self.show()
 
+
     @staticmethod
     def dict_tech_player():
-        account_id = FuckingGrid().account_id
+        account_id = MainWindowGrid().account_id
         account = wg.Account(account_id, application_id)
         tankopedia = wg.Tankopedia(application_id)
         parser = wg.Parser(account, tankopedia)
@@ -259,22 +315,22 @@ class TankWindow(QWidget):
             self.players_tech.addItem(icon, name)
 
     def parser(self):
-        return wg.Parser(wg.Account(FuckingGrid().account_id, application_id), wg.Tankopedia(application_id))
+        return wg.Parser(wg.Account(MainWindowGrid().account_id, application_id), wg.Tankopedia(application_id))
 
     def comon_method_oA(self, tank_id):
         tank = wg.Tankopedia(application_id)
         tank_charac = tank.tech_characteristic(tank_id)['data'][tank_id]
         return tank_charac
 
-
     def onActivated(self, text):
         tank_id_oa = str(self.dict_tech_player()[text[1:]])
         print(tank_id_oa)
         #######################################################
-        self.label_ammo.setText('Characteristics of the projectile shells: ')
+        self.label_ammo.setText('Characteristics of the projectile shells')
         for i in self.comon_method_oA(tank_id_oa)['ammo']:
-            self.label_ammo.setText(self.label_ammo.text() + " ".join(i['type'].split('_')) + ': dam: ' + \
-                                    json.dumps(i['damage']) + ', pen: ' + json.dumps(i['penetration']) + '  ')
+            self.label_ammo.setText(self.label_ammo.text() + '\n' + " ".join(i['type'].split('_')) + ': dam: ' + \
+                                    json.dumps(i['damage']) + ', pen: ' + json.dumps(i['penetration']) + '\n')
+        self.label_ammo.resize(13, 50)
         self.label_ammo.adjustSize()
         #######################################################
         self.label_max_weight.setText('Real weight(kg): ')
@@ -327,9 +383,9 @@ class TankWindow(QWidget):
                                self.comon_method_oA(tank_id_oa)['gun']['name'] \
                                + ' Caliber (mm): '
                                + str(self.comon_method_oA(tank_id_oa)['gun']['caliber']) \
-                               + ' Dispersion at 100 m (m): ' \
+                               + ' \nDispersion at 100 m (m): ' \
                                + str(self.comon_method_oA(tank_id_oa)['gun']['dispersion']) \
-                               + ' Rate of fire (rounds/min) ' \
+                               + ' \nRate of fire (rounds/min) ' \
                                + str(self.comon_method_oA(tank_id_oa)['gun']['fire_rate']) \
                                + ' Aiming time (s): ' \
                                + str(self.comon_method_oA(tank_id_oa)['gun']['aim_time']) \
@@ -444,7 +500,7 @@ class TankWindow(QWidget):
         self.label_engine.adjustSize()
 
 
-class Example(QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -465,8 +521,7 @@ class Example(QMainWindow):
         fileMenu.addAction(exitAction)
         fileMenu.addAction(update_data_action)
 
-
-        self.fgrid = FuckingGrid()
+        self.fgrid = MainWindowGrid()
         self.setCentralWidget(self.fgrid)
         self.resize(800, 550)
         self.center()
@@ -485,8 +540,41 @@ class Example(QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+
+class Example(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.okButton = QPushButton("OK")
+        cancelButton = QPushButton("Cancel")
+        self.label = QLabel(self)
+        self.label.setText("hui")
+        self.style_string = """background-color: #F6E2C5; color: #000000;
+                                font-family: Times; border-radius: 10px; padding: 10px;"""
+        self.label.setStyleSheet(self.style_string)
+        self.okButton.clicked.connect(self.gu)
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.okButton)
+        hbox.addWidget(cancelButton)
+        hbox.addWidget(self.label)
+        vbox = QVBoxLayout()
+        vbox.addStretch(100)
+        vbox.addLayout(hbox)
+
+        self.setLayout(vbox)
+
+        self.setGeometry(300, 300, 300, 150)
+        self.setWindowTitle('Buttons')
+        self.show()
+
+    def gu(self):
+        self.label.setText("hui\npizda\nDjigurda")
+        self.label.adjustSize()
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = Example()
+    ex = MainWindow()
 
     sys.exit(app.exec_())
